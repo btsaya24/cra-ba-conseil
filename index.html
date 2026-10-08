@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CRA · B&A Conseil</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f6f3;--card:#fff;--tx:#1c1c1a;--mu:#6b6b66;--bd:#e0dfd9;--ac:#1f4fd8;--ok:#1f8a4c;--wa:#c27a00;--ko:#c0392b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151514;--card:#201f1e;--tx:#eeeee9;--mu:#9a9a93;--bd:#353530;--ac:#6f8cff;--ok:#4cc27f;--wa:#e0a030;--ko:#e8695a}}
+:root[data-theme="dark"]{--bg:#151514;--card:#201f1e;--tx:#eeeee9;--mu:#9a9a93;--bd:#353530;--ac:#6f8cff;--ok:#4cc27f;--wa:#e0a030;--ko:#e8695a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--bd)}
+main{max-width:920px;margin:0 auto;padding:16px}
+button,input,select,textarea{font:inherit;color:var(--tx)}
+.btn{border:1px solid var(--bd);background:var(--card);padding:7px 12px;border-radius:8px;cursor:pointer}
+.btn.pri{background:var(--ac);border-color:var(--ac);color:#fff}.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}.btn.ko{color:var(--ko);border-color:var(--ko)}
+.btn:disabled{opacity:.5}
+input,select,textarea{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px;width:100%;box-sizing:border-box}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:12px}
+.card.warn{border-color:var(--ko)}.card.good{border-color:var(--ok)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.chip{border-radius:99px;padding:2px 10px;font-size:13px;color:#fff;white-space:nowrap}
+.brouillon{background:#8a8a84}.soumis{background:var(--wa)}.valide{background:var(--ok)}.refuse{background:var(--ko)}.none{background:#aaa9a2}
+.s{color:var(--mu);font-size:13px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-top:10px}
+.hd{color:var(--mu);font-size:12px}
+.d{border:1px solid var(--bd);border-radius:8px;padding:5px 0;min-height:42px;user-select:none;cursor:pointer}
+.d small{display:block;color:var(--mu);font-size:11px}.d.we{opacity:.4;border-style:dashed;cursor:default}
+.d[data-c=T],.pb[data-c=T]{background:color-mix(in srgb,var(--ok) 25%,var(--card))}
+.d[data-c=R],.pb[data-c=R]{background:color-mix(in srgb,var(--ac) 25%,var(--card))}
+.d[data-c=D],.pb[data-c=D]{background:color-mix(in srgb,var(--wa) 25%,var(--card))}
+.d[data-c=C],.pb[data-c=C]{background:color-mix(in srgb,#9b59b6 25%,var(--card))}
+.d[data-c=RTT],.pb[data-c=RTT]{background:color-mix(in srgb,#16a085 25%,var(--card))}
+.d[data-c=M],.pb[data-c=M]{background:color-mix(in srgb,var(--ko) 25%,var(--card))}
+.d[data-c=F],.pb[data-c=F]{background:color-mix(in srgb,#888 25%,var(--card))}
+.pal{display:flex;gap:6px;flex-wrap:wrap}.pb{border:2px solid var(--bd);border-radius:8px;padding:5px 9px;cursor:pointer;font-size:13px;background:var(--card)}.pb.on{border-color:var(--tx)}
+.kp{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.kp div{flex:1;min-width:100px;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px}
+.kp b{display:block;font-size:22px}.kp span{color:var(--mu);font-size:13px}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}.tabs .btn.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:600px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--bd);white-space:nowrap}th{color:var(--mu);font-weight:500;font-size:13px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
+.err{color:var(--ko);margin:8px 0}.inf{color:var(--ok);margin:8px 0}
+.demo span{cursor:pointer;text-decoration:underline;color:var(--ac)}
+</style></head><body>
+<div id="app"></div>
+<script>
+const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0');
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TY={T:{l:'Travaillé',v:1},R:{l:'Télétravail',v:1},D:{l:'Demi-journée',v:.5},C:{l:'Congé payé',a:1},RTT:{l:'RTT',a:1},M:{l:'Maladie',a:1},F:{l:'Férié'}};
+const ST={brouillon:'Brouillon',soumis:'Soumis',valide:'Validé',refuse:'Refusé',none:'Non commencé'};
+const MO=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const KEY='ba_cra_v1';let DB,S={u:null,tab:'suivi',y:2026,m:10,brush:'T',open:null,err:'',info:''};
+const dim=(y,m)=>new Date(y,m,0).getDate(),wk=(y,m,d)=>{const w=new Date(y,m-1,d).getDay();return w>0&&w<6},ds=(y,m,d)=>`${y}-${pad(m)}-${pad(d)}`,key=(u,y,m)=>`${u}-${y}-${pad(m)}`;
+const nm=u=>esc(u.prenom+' '+u.nom);
+function mkc(uid,y,m,upto,st,ov){const days={};for(let d=1;d<=upto;d++)if(wk(y,m,d))days[ds(y,m,d)]=(ov&&ov[d])||'T';return{uid,y,m,statut:st,days,cm:'',ca:''}}
+function seed(){const cras={};
+ [[2,9,30,'valide',{14:'C'}],[3,9,30,'soumis',{21:'R'}],[2,10,8,'brouillon']].forEach(a=>{const y=2026;cras[key(a[0],y,a[1])]=mkc(a[0],y,a[1],a[2],a[3],a[4])});
+ return{users:[
+ {id:1,prenom:'Admin',nom:'B&A',email:'admin@ba-conseil.fr',pwd:'admin123',role:'admin',actif:1},
+ {id:2,prenom:'Sophie',nom:'Martin',email:'sophie.martin@ba-conseil.fr',pwd:'demo123',role:'consultant',actif:1,client:'Banque Atlas',mission:'Chef de projet MOA'},
+ {id:3,prenom:'Karim',nom:'Benali',email:'karim.benali@ba-conseil.fr',pwd:'demo123',role:'consultant',actif:1,client:'Logis Santé',mission:'Développeur Java'},
+ {id:4,prenom:'Léa',nom:'Dubois',email:'lea.dubois@ba-conseil.fr',pwd:'demo123',role:'consultant',actif:1,client:'Retail Nord',mission:'Data analyst'}],
+ cras,logs:[{t:new Date().toLocaleString('fr-FR'),w:'Système',a:'Données de démonstration chargées'}]}}
+function load(){try{DB=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!DB)DB=seed()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}}
+function log(a){DB.logs.unshift({t:new Date().toLocaleString('fr-FR'),w:S.u?S.u.prenom+' '+S.u.nom:'Système',a});save()}
+function tot(c){let f=0,a=0;for(const k in c.days){const t=TY[c.days[k]];f+=t.v||0;a+=t.a?1:0}return{f,a}}
+function miss(c,y,m){let n=0;for(let d=1;d<=dim(y,m);d++)if(wk(y,m,d)&&!c.days[ds(y,m,d)])n++;return n}
+function cal(c,y,m,ed){let h=['L','M','M','J','V','S','D'].map(x=>`<div class="hd">${x}</div>`).join('')+'<div></div>'.repeat((new Date(y,m-1,1).getDay()+6)%7);
+ for(let d=1;d<=dim(y,m);d++){const w=wk(y,m,d),k=ds(y,m,d),v=c.days[k]||'';h+=`<div class="d${w?'':' we'}" data-c="${v}" ${w&&ed?`onclick="paint('${k}')"`:''}>${d}<small>${v||'·'}</small></div>`}
+ return`<div class="cal">${h}</div>`}
+function nav(){return`<div class="row" style="margin-top:10px"><button class="btn" onclick="mv(-1)">←</button><b>${MO[S.m-1]} ${S.y}</b><button class="btn" onclick="mv(1)">→</button></div>`}
+function mv(n){let m=S.m+n,y=S.y;if(m<1){m=12;y--}if(m>12){m=1;y++}S.m=m;S.y=y;S.open=null;S.err='';S.info='';render()}
+function msgs(){return(S.err?`<div class="err">${esc(S.err)}</div>`:'')+(S.info?`<div class="inf">${esc(S.info)}</div>`:'')}
+function login(){const e=$('#em').value.trim().toLowerCase(),p=$('#pw').value,u=DB.users.find(x=>x.email==e&&x.pwd==p);
+ if(!u)S.err='Identifiant ou mot de passe incorrect.';else if(!u.actif)S.err="Ce compte est désactivé. Contactez l'administration.";else{S.u=u;S.err='';S.tab='suivi';log('Connexion')}render()}
+function out(){log('Déconnexion');S.u=null;S.open=null;S.info='';render()}
+function fill(e,p){$('#em').value=e;$('#pw').value=p}
+function vLogin(){return`<main style="max-width:380px"><div class="card"><h2 style="margin:0 0 4px">B&amp;A Conseil</h2><div class="s">Compte rendu d'activité · connexion</div><div class="g" style="grid-template-columns:1fr"><input id="em" type="email" placeholder="Email professionnel" autocomplete="username"><input id="pw" type="password" placeholder="Mot de passe" autocomplete="current-password" onkeydown="if(event.key=='Enter')login()"></div>${msgs()}<button class="btn pri" style="width:100%" onclick="login()">Se connecter</button></div>
+<div class="card demo s"><b>Comptes de démonstration</b><br><span onclick="fill('admin@ba-conseil.fr','admin123')">Administrateur</span> · <span onclick="fill('sophie.martin@ba-conseil.fr','demo123')">Sophie (consultante)</span> · <span onclick="fill('lea.dubois@ba-conseil.fr','demo123')">Léa (consultante)</span><br>Cliquez sur un compte puis sur « Se connecter ».</div></main>`}
+// Consultant
+function paint(k){const u=S.u,c=DB.cras[key(u.id,S.y,S.m)]||(DB.cras[key(u.id,S.y,S.m)]={uid:u.id,y:S.y,m:S.m,statut:'brouillon',days:{},cm:'',ca:''});
+ if(!['brouillon','refuse'].includes(c.statut))return;if(c.days[k]==S.brush)delete c.days[k];else c.days[k]=S.brush;save();render()}
+function fillW(){const u=S.u,id=key(u.id,S.y,S.m),c=DB.cras[id]||(DB.cras[id]={uid:u.id,y:S.y,m:S.m,statut:'brouillon',days:{},cm:'',ca:''});
+ for(let d=1;d<=dim(S.y,S.m);d++)if(wk(S.y,S.m,d)&&!c.days[ds(S.y,S.m,d)])c.days[ds(S.y,S.m,d)]='T';save();render()}
+function subm(){const c=DB.cras[key(S.u.id,S.y,S.m)];if(!c)return;const n=miss(c,S.y,S.m);
+ if(n){S.err=`Il reste ${n} jour(s) ouvré(s) non renseigné(s). Complétez-les avant d'envoyer.`;return render()}
+ c.cm=($('#cm')||{}).value||'';c.statut='soumis';c.ca='';S.err='';S.info="CRA envoyé à l'administration B&A Conseil.";log(`CRA ${MO[S.m-1]} ${S.y} soumis`);render()}
+function vC(){const u=S.u,{y,m}=S,c=DB.cras[key(u.id,y,m)]||{statut:'none',days:{},cm:'',ca:''},ed=['none','brouillon','refuse'].includes(c.statut),t=tot(c),n=miss(c,y,m);
+ const pal=Object.keys(TY).map(k=>`<button class="pb ${S.brush==k?'on':''}" data-c="${k}" onclick="S.brush='${k}';render()">${k} · ${TY[k].l}</button>`).join('');
+ const hist=Object.values(DB.cras).filter(x=>x.uid==u.id).sort((a,b)=>b.y*100+b.m-a.y*100-a.m).map(x=>`<button class="btn" onclick="S.y=${x.y};S.m=${x.m};S.info='';S.err='';render()">${MO[x.m-1]} ${x.y} <span class="chip ${x.statut}">${ST[x.statut]}</span></button>`).join(' ');
+ return`<main><div class="card"><div class="row"><div><b>${nm(u)}</b><div class="s">${esc(u.client)} · ${esc(u.mission)}</div></div><span class="chip ${c.statut}">${ST[c.statut]}</span></div>${nav()}</div>
+ ${c.statut=='refuse'?`<div class="card warn"><b>CRA à corriger</b><br>${esc(c.ca)}</div>`:''}${c.statut=='valide'?`<div class="card good">✔ Ce CRA a été validé par l'administration.</div>`:''}
+ <div class="card">${ed?`<div class="s" style="margin-bottom:6px">Choisissez un type, puis cliquez sur les jours. Recliquez sur un jour pour l'effacer.</div><div class="pal">${pal}</div>`:''}${cal(c,y,m,ed)}</div>
+ <div class="kp"><div><b>${t.f}</b><span>Jours travaillés</span></div><div><b>${t.a}</b><span>Jours d'absence</span></div><div><b>${n}</b><span>Jours ouvrés à renseigner</span></div></div>
+ ${ed?`<div class="card"><div class="s">Commentaire pour l'administration (optionnel)</div><textarea id="cm" rows="2">${esc(c.cm)}</textarea>${msgs()}<div class="row" style="justify-content:flex-start;margin-top:8px"><button class="btn" onclick="fillW()">Remplir les jours vides en « Travaillé »</button><button class="btn pri" onclick="subm()">Envoyer mon CRA</button></div><div class="s" style="margin-top:6px">Vos saisies sont enregistrées automatiquement.</div></div>`:msgs()}
+ ${hist?`<div class="card"><b>Mes CRA</b><div class="row" style="justify-content:flex-start;margin-top:8px">${hist}</div></div>`:''}</main>`}
+// Admin
+function op(k){S.open=k;S.err='';S.info='';render()}
+function rel(id){const u=DB.users.find(x=>x.id==id);S.info=`Relance envoyée à ${u.email} (simulation).`;log(`Relance envoyée à ${u.prenom} ${u.nom} pour ${MO[S.m-1]} ${S.y}`);render()}
+function dec(k,ok){const c=DB.cras[k],t=($('#ca')||{}).value||'';if(!ok&&!t.trim()){S.err='Indiquez un motif pour le refus.';return render()}
+ c.statut=ok?'valide':'refuse';c.ca=t;S.err='';S.info=ok?'CRA validé. Le consultant est notifié (simulation).':'CRA refusé. Le consultant doit le corriger (simulation).';const u=DB.users.find(x=>x.id==c.uid);log(`CRA ${MO[c.m-1]} ${c.y} de ${u.prenom} ${u.nom} ${ok?'validé':'refusé'}`);S.open=null;render()}
+function reopen(k){const c=DB.cras[k];c.statut='refuse';c.ca="Rouvert par l'administration pour correction.";log('CRA rouvert');S.open=null;render()}
+function copySum(){const L=DB.users.filter(u=>u.role=='consultant'&&u.actif).map(u=>{const c=DB.cras[key(u.id,S.y,S.m)]||{statut:'none',days:{}},t=tot(c);return`${u.prenom} ${u.nom} | ${ST[c.statut]} | ${t.f} j | ${t.a} abs.`});
+ const x=`CRA ${MO[S.m-1]} ${S.y}\n`+L.join('\n');(navigator.clipboard?navigator.clipboard.writeText(x):Promise.reject()).then(()=>{S.info='Récapitulatif copié.';render()},()=>{S.info='Copie impossible sur ce navigateur.';render()})}
+function vDetail(){const c=DB.cras[S.open],u=DB.users.find(x=>x.id==c.uid),t=tot(c);
+ return`<div class="card"><div class="row"><div><b>${nm(u)}</b> · ${esc(u.client)}<div class="s">${MO[c.m-1]} ${c.y}</div></div><span class="chip ${c.statut}">${ST[c.statut]}</span></div>${cal(c,c.y,c.m,false)}
+ <div class="kp"><div><b>${t.f}</b><span>Jours travaillés</span></div><div><b>${t.a}</b><span>Jours d'absence</span></div><div><b>${miss(c,c.y,c.m)}</b><span>Non renseignés</span></div></div>
+ ${c.cm?`<div class="s">Commentaire du consultant :</div><p>${esc(c.cm)}</p>`:''}
+ ${c.statut=='soumis'?`<textarea id="ca" rows="2" placeholder="Commentaire ou motif de refus"></textarea>${msgs()}<div class="row" style="justify-content:flex-start;margin-top:8px"><button class="btn ok" onclick="dec('${S.open}',true)">Valider</button><button class="btn ko" onclick="dec('${S.open}',false)">Refuser</button><button class="btn" onclick="S.open=null;render()">Fermer</button></div>`:`${msgs()}<div class="row" style="justify-content:flex-start;margin-top:8px">${c.statut=='valide'?`<button class="btn" onclick="reopen('${S.open}')">Rouvrir pour correction</button>`:''}<button class="btn" onclick="S.open=null;render()">Fermer</button></div>`}</div>`}
+function vSuivi(){const{y,m}=S,cs=DB.users.filter(u=>u.role=='consultant'&&u.actif);let sb=0,va=0;
+ const rows=cs.map(u=>{const k=key(u.id,y,m),c=DB.cras[k]||{statut:'none',days:{}},t=tot(c);if(c.statut=='soumis')sb++;if(c.statut=='valide')va++;
+ return`<tr><td>${nm(u)}</td><td>${esc(u.client)}</td><td><span class="chip ${c.statut}">${ST[c.statut]}</span></td><td>${t.f}</td><td>${t.a}</td><td>${miss(c,y,m)}</td><td>${c.statut!='none'?`<button class="btn" onclick="op('${k}')">Ouvrir</button> `:''}${['none','brouillon','refuse'].includes(c.statut)?`<button class="btn" onclick="rel(${u.id})">Relancer</button>`:''}</td></tr>`}).join('');
+ return`<div class="card">${nav()}</div><div class="kp"><div><b>${cs.length}</b><span>Consultants actifs</span></div><div><b>${sb}</b><span>À contrôler</span></div><div><b>${va}</b><span>Validés</span></div><div><b>${cs.length-sb-va}</b><span>En attente du consultant</span></div></div>
+ ${S.open?vDetail():msgs()}<div class="card sc"><table><thead><tr><th>Consultant</th><th>Client</th><th>Statut</th><th>Jours trav.</th><th>Absences</th><th>Non renseignés</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div><button class="btn" onclick="copySum()">Copier le récapitulatif du mois</button>`}
+function addU(){const g=i=>$('#'+i).value.trim(),p=g('np'),n=g('nn'),e=g('ne').toLowerCase();
+ if(!p||!n||!e){S.err='Prénom, nom et email sont obligatoires.';return render()}if(DB.users.some(x=>x.email==e)){S.err='Cet email existe déjà.';return render()}
+ const pw='Temp-'+Math.floor(1000+Math.random()*9000);DB.users.push({id:Math.max(...DB.users.map(x=>x.id))+1,prenom:p,nom:n,email:e,pwd:pw,role:'consultant',actif:1,client:g('nc'),mission:g('nmi')});
+ S.err='';S.info=`Compte créé pour ${p} ${n}. Mot de passe provisoire : ${pw} (à lui transmettre).`;log(`Compte créé : ${p} ${n}`);render()}
+function tog(id){const u=DB.users.find(x=>x.id==id);u.actif=u.actif?0:1;log(`Compte ${u.actif?'réactivé':'désactivé'} : ${u.prenom} ${u.nom}`);render()}
+function rst(id){const u=DB.users.find(x=>x.id==id);u.pwd='Temp-'+Math.floor(1000+Math.random()*9000);S.info=`Nouveau mot de passe provisoire pour ${u.prenom} ${u.nom} : ${u.pwd}`;log(`Mot de passe réinitialisé : ${u.prenom} ${u.nom}`);render()}
+function vCons(){const rows=DB.users.filter(u=>u.role=='consultant').map(u=>`<tr><td>${nm(u)}</td><td>${esc(u.email)}</td><td>${esc(u.client)} · ${esc(u.mission)}</td><td><span class="chip ${u.actif?'valide':'none'}">${u.actif?'Actif':'Désactivé'}</span></td><td><button class="btn" onclick="tog(${u.id})">${u.actif?'Désactiver':'Réactiver'}</button> <button class="btn" onclick="rst(${u.id})">Réinit. mot de passe</button></td></tr>`).join('');
+ return`<div class="card"><b>Ajouter un consultant</b><div class="g"><input id="np" placeholder="Prénom"><input id="nn" placeholder="Nom"><input id="ne" type="email" placeholder="Email"><input id="nc" placeholder="Client de la mission"><input id="nmi" placeholder="Intitulé de la mission"></div><button class="btn pri" onclick="addU()">Créer le compte</button>${msgs()}</div><div class="card sc"><table><thead><tr><th>Consultant</th><th>Email</th><th>Mission</th><th>Compte</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`}
+function vLog(){return`<div class="card"><b>Journal d'activité</b><div class="s">Qui a fait quoi, et quand.</div>${DB.logs.slice(0,80).map(l=>`<div style="padding:6px 0;border-bottom:1px solid var(--bd)"><span class="s">${esc(l.t)}</span> · <b>${esc(l.w)}</b> : ${esc(l.a)}</div>`).join('')}</div>`}
+function vA(){const T=[['suivi','Suivi des CRA'],['cons','Consultants'],['log','Journal']];
+ return`<main><div class="tabs">${T.map(t=>`<button class="btn ${S.tab==t[0]?'on':''}" onclick="S.tab='${t[0]}';S.err='';S.info='';S.open=null;render()">${t[1]}</button>`).join('')}<button class="btn" style="margin-left:auto" onclick="if(confirm('Réinitialiser toutes les données de démonstration ?')){DB=seed();save();S.u=null;render()}">Réinitialiser la démo</button></div>${S.tab=='suivi'?vSuivi():S.tab=='cons'?vCons():vLog()}</main>`}
+function render(){let h='';if(!S.u)h=vLogin();else h=`<header><b>B&amp;A Conseil · CRA</b><span class="s">${nm(S.u)} · ${S.u.role=='admin'?'Administrateur':'Consultant'} <button class="btn" onclick="out()">Déconnexion</button></span></header>`+(S.u.role=='admin'?vA():vC());
+ $('#app').innerHTML=h}
+load();render();
+</script></body></html>
